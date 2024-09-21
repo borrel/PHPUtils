@@ -10,10 +10,10 @@ FROM php:8.3-cli
 ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
 
-RUN install-php-extenstions gd @composer
+RUN install-php-extensions gd @composer
 
 
-RUN test "01" -eq "0$DEV" && install-php-extenstions xdebug
+RUN test "01" -eq "0$DEV" && install-php-extensions xdebug
 
 
 
