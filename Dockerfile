@@ -7,7 +7,8 @@ FROM php:8.3-cli
 #        mysql-client \
 #    && docker-php-ext-configure gd --with-freetype --with-jpeg \
 #    && docker-php-ext-install -j$(nproc) gd
-    
+
+ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin
 RUN install-php-extenstions gd @composer
 
 
