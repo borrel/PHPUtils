@@ -1,4 +1,3 @@
-ARG DEV=1
 
 FROM php:8.3-cli
 #php ext-gd
@@ -13,7 +12,7 @@ ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/relea
 RUN install-php-extensions gd @composer
 
 
-RUN test 1 -eq $DEV && install-php-extensions xdebug
+RUN install-php-extensions xdebug
 
 
 
