@@ -23,38 +23,14 @@ env:
 
 
 jobs:
-  setup-matrix:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: read
-      # This is used to complete the identity challenge
-      # with sigstore/fulcio when running outside of PRs.
-      # id-token: write
-    steps:
-      # Login against a Docker registry except on PR
-      # https://github.com/docker/login-action
-      - name: Log into registry ${{ env.REGISTRY }}
-        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ vars.DOCKER_USER }}
-          password: ${{ secrets.DOCKER_KEY }}
-      - name: mirror docker tags
-        id: tags
-        run: |
-          echo matrix=php:cli php:8.3-cli >> "$GITHUB_OUTPUT"
-    outputs:
-      matrix: ${{ steps.tags.outputs.matrix }}
   build:
 
     runs-on: ubuntu-latest
-    needs: setup-matrix
-    if: ${{ needs.setup-matrix.outputs.matrix}}
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
-    name: ${{ matrix.base_img }}
+      matrix:
+        version: ['8.3','8.2','latest']
+    name: php:${{ matrix.version }}-cli
     permissions:
       contents: read
       packages: write
@@ -110,6 +86,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: VERSION=${{ matrix.version }}
 
       # Sign the resulting Docker image digest except on PRs.
       # This will only write to the public Rekor transparency log when the Docker
