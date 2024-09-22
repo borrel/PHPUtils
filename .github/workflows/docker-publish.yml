@@ -29,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: ['8.3','8.2','latest']
+        version: ['8.3','8.2']
     name: php:${{ matrix.version }}-cli
     permissions:
       contents: read
