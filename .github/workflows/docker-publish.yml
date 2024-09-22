@@ -44,8 +44,8 @@ jobs:
         id: tags
         uses: s6on/mirror-docker-tags-action@v1.2
         with:
-          from: php
-          to: ${{github.repository_owner}}
+          from: library/php
+          to: ${{ github.repository_owner }}
           # extra-registry: ghcr.io
           updateAll: ${{ github.event_name != 'schedule' }}
     outputs:
