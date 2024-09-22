@@ -43,7 +43,7 @@ jobs:
       - name: mirror docker tags
         id: tags
         run: |
-          echo php:cli php:8.3-cli >> "$GITHUB_OUTPUT"
+          echo matrix=php:cli php:8.3-cli >> "$GITHUB_OUTPUT"
     outputs:
       matrix: ${{ steps.tags.outputs.matrix }}
   build:
