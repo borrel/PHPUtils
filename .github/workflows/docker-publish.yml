@@ -23,9 +23,42 @@ env:
 
 
 jobs:
+  setup-matrix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      # This is used to complete the identity challenge
+      # with sigstore/fulcio when running outside of PRs.
+      # id-token: write
+    steps:
+      # Login against a Docker registry except on PR
+      # https://github.com/docker/login-action
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ vars.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_KEY }}
+      - name: mirror docker tags
+        id: tags
+        uses: s6on/mirror-docker-tags-action@v1.2
+        with:
+          from: php
+          to: ${{github.repository_owner}}
+          # extra-registry: ghcr.io
+          updateAll: ${{ github.event_name != 'schedule' }}
+    outputs:
+      matrix: ${{ steps.tags.outputs.matrix }}
   build:
 
     runs-on: ubuntu-latest
+    needs: setup-matrix
+    if: ${{ needs.setup-matrix.outputs.matrix}}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
+    name: ${{ matrix.base_img }}
     permissions:
       contents: read
       packages: write
@@ -96,3 +129,6 @@ jobs:
         # This step uses the identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+      
+
+          

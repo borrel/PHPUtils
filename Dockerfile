@@ -1,10 +1,8 @@
 ARG VERSION=8.3
 ARG FLAVOR=cli
 
-ENV TAG=${VERSION}${FLAVOR?+${VERSION}?+-}${FLAVOR}
 
-
-FROM php:8.3-cli
+FROM php:${VERSION}${FLAVOR:+${VERSION:+-}}${FLAVOR}
 
 RUN apt-get update
 
