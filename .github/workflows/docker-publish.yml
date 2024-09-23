@@ -17,13 +17,21 @@ on:
 
 env:
   # Use docker.io for Docker Hub if empty
-  REGISTRY: 
+  REGISTRY: docker.io
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ vars.DOCKER_USER }}/PHPUtils
 
 
 jobs:
-  build:
+
+
+  make-matrix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: fetch versions
+        run: |
+          curl -vvvO $GITHUB_OUTPUT https://www.php.net/releases/index.php?json
+s  build:
 
     runs-on: ubuntu-latest
     strategy:
@@ -92,7 +100,7 @@ jobs:
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
-          tags: borrel01/phputils:${{ matrix.version }},ghcr.io/borrel/phputils:${{ matrix.version }}
+          tags: borrel01/phputils:${{ matrix.version }} ghcr.io/borrel/phputils:${{ matrix.version }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
