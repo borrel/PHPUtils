@@ -3,8 +3,9 @@ ARG FLAVOR=cli
 
 FROM php:${VERSION}${FLAVOR:+${VERSION:+-}}${FLAVOR}
 
-LABEL VERSION=${VERSION}
-LABEL FLAVOR=${FLAVOR}
+LABEL VERSION="$VERSION" \
+      FLAVOR="$FLAVOR" \
+      orig-tag=${VERSION}${FLAVOR:+${VERSION:+-}}${FLAVOR}
 
 ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
