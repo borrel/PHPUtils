@@ -17,7 +17,7 @@ on:
 
 env:
   # Use docker.io for Docker Hub if empty
-  REGISTRY: docker.io
+  REGISTRY: 
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ vars.DOCKER_USER }}/PHPUtils
 
@@ -62,10 +62,20 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: docker.io
           username: ${{ vars.DOCKER_USER }}
           password: ${{ secrets.DOCKER_KEY }}
 
+      # Login against a Docker registry except on PR
+      # https://github.com/docker/login-action
+      - name: Log into registry github
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata
@@ -82,7 +92,7 @@ jobs:
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
-          tags: borrel01/phputils:${{ matrix.version }}
+          tags: borrel01/phputils:${{ matrix.version }},ghcr.io/borrel/PHPUtils:${{ matrix.version }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
