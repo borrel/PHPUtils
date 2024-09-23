@@ -108,6 +108,7 @@ jobs:
         uses: docker/build-push-action@5cd11c3a4ced054e52742c5fd54dca954e0edd85 # v6.7.0
         with:
           context: .
+          pull: true
           push: ${{ github.event_name != 'pull_request' }}
           tags: borrel01/phputils:${{ matrix.version }}-${{matrix.type}},ghcr.io/borrel/phputils:${{ matrix.version }}-${{matrix.type}}
           labels: ${{ steps.meta.outputs.labels }}
@@ -126,7 +127,7 @@ jobs:
         if: ${{ github.event_name != 'pull_request' }}
         env:
           # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
-          TAGS: ${{ steps.meta.outputs.tags }}
+          TAGS: borrel01/phputils:${{ matrix.version }}-${{matrix.type}},ghcr.io/borrel/phputils:${{ matrix.version }}-${{matrix.type}}
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
         # This step uses the identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
