@@ -13,7 +13,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get update && \
     apt-get install -y git screen byobu default-mysql-client curl sudo
 
-RUN install-php-extensions xdebug gd gmp mcrypt soap sockets tidy zip mysql pdo_mysql redis opcache @composer
+RUN install-php-extensions xdebug gd gmp mcrypt soap sockets tidy zip mysqli pdo_mysql redis opcache @composer
 
 ADD README.md /README.md
 
