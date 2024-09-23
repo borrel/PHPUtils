@@ -31,7 +31,8 @@ jobs:
       - name: fetch versions
         run: |
           curl -vvvO $GITHUB_OUTPUT https://www.php.net/releases/index.php?json
-s  build:
+          
+  build:
 
     runs-on: ubuntu-latest
     strategy:
