@@ -35,7 +35,7 @@ jobs:
         run: |
           echo "json=" >> "$GITHUB_OUTPUT"
           curl -cv https://www.php.net/releases/index.php?json | \
-            jq 'reduce .[].supported_+versions as $item ([];. + $item)' \
+            jq 'reduce .[].supported_versions as $item ([];. + $item)' \
             >> "$GITHUB_OUTPUT"
           
   build:
