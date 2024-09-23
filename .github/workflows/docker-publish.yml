@@ -28,7 +28,7 @@ jobs:
   make-matrix:
     runs-on: ubuntu-latest
     outputs:
-      php-versions: ${{fromJson(steps.fetch.outputs.json)}}
+      php-versions: ${{steps.fetch.outputs.json}}
     steps:
       - name: fetch versions
         id: fetch
@@ -45,7 +45,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: ${{needs.make-matrix.outputs.php-versions}}
+        version: ${{fromJson(needs.make-matrix.outputs.php-versions)}}
     name: php:${{ matrix.version }}-cli
     permissions:
       contents: read
