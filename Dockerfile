@@ -15,22 +15,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get update && \
     apt-get install -y git screen byobu default-mysql-client curl sudo
 
-RUN install-php-extensions xdebug 
-RUN install-php-extensions gd 
-RUN install-php-extensions gmp
-RUN install-php-extensions mcrypt
-RUN install-php-extensions soap
-RUN install-php-extensions sockets
-RUN install-php-extensions tidy
-RUN install-php-extensions zip
-RUN install-php-extensions mysqli
-RUN install-php-extensions pdo_mysql
-RUN install-php-extensions redis
-RUN install-php-extensions opcache
-RUN install-php-extensions @composer
+RUN echo 'gd gmp mcrypt mysqli opcache pdo_mysql redis soap sockets tidy xdebug zip @composer' '|' \
+    xargs -i -d ' ' echo -n ':' ';' echo -n ':group:' ';' echo -n ':' ';'  echo "'"'{}'"'" ';' install-php-extensions '{}' ';' echo -n ':' ';' echo -n ':endgroup:' ';' echo ':'
 
+#    xargs -it -L1 -d ' ' echo '::group::{}' ';' install-php-extensions '{}' ';' echo '::endgroup::' ';exit 100'
 
 ADD README.md /README.md
-
-
-
