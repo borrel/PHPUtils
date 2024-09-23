@@ -33,7 +33,7 @@ jobs:
       - name: fetch versions
         id: fetch
         run: |
-          echo "json=" >> "$GITHUB_OUTPUT"
+          echo -n "json=" >> "$GITHUB_OUTPUT"
           curl -cv https://www.php.net/releases/index.php?json \
             | jq -c 'reduce .[].supported_versions as $item ([];. + $item)' \
             >> "$GITHUB_OUTPUT"
