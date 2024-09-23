@@ -127,7 +127,9 @@ jobs:
         if: ${{ github.event_name != 'pull_request' }}
         env:
           # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
-          TAGS: borrel01/phputils:${{ matrix.version }}-${{matrix.type}} ghcr.io/borrel/phputils:${{ matrix.version }}-${{matrix.type}}
+          TAGS: |
+            borrel01/phputils:${{ matrix.version }}-${{matrix.type}}
+            ghcr.io/borrel/phputils:${{ matrix.version }}-${{matrix.type}}
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
         # This step uses the identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
