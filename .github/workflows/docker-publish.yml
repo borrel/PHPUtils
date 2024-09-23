@@ -46,7 +46,8 @@ jobs:
       fail-fast: false
       matrix:
         version: ${{fromJson(needs.make-matrix.outputs.php-versions)}}
-    name: php:${{ matrix.version }}-cli
+        type: [cli,apache,fpm]
+    name: php:${{ matrix.version }}-${{matrix.type}}
     permissions:
       contents: read
       packages: write
@@ -108,7 +109,7 @@ jobs:
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
-          tags: borrel01/phputils:${{ matrix.version }} ghcr.io/borrel/phputils:${{ matrix.version }}
+          tags: borrel01/phputils:${{ matrix.version }}-${{matrix.type}} ghcr.io/borrel/phputils:${{ matrix.version }}-${{matrix.type}}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
