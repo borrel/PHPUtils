@@ -45,7 +45,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: ${{fromJson(needs.make-matrix.outputs.php-versions)}})}}
+        version: ${{fromJson(needs.make-matrix.outputs.php-versions)}}
     name: php:${{ matrix.version }}-cli
     permissions:
       contents: read
