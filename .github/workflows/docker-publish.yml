@@ -86,7 +86,7 @@ jobs:
         with:
           registry: ${{ matrix.repo.name }}
           username: ${{ matrix.repo.username }}
-          password: ${{ secrets[${{ matrix.repo.secret }}] }}
+          password: ${{ secrets[matrix.repo.secret] }}
 
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
@@ -105,7 +105,7 @@ jobs:
           context: .
           pull: true
           push: ${{ github.event_name != 'pull_request' }}
-          tags: borrel01/phputils:${{ matrix.version }}-${{matrix.type}},ghcr.io/borrel/phputils:${{ matrix.version }}-${{matrix.type}}
+          tags: matrix.repo.reop:${{ matrix.version }}-${{matrix.type}}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -132,6 +132,10 @@ jobs:
 
   create-release:
     needs: build
+    runs-on: ubuntu-latest
     steps:
       - name: create Release file
-        run: echo TEST >> Release.md
+        run: |
+          echo PHPUtils >> Release.md
+          echo PHPUtils >> Release.md
+          echo PHPUtils >> Release.md
