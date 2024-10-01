@@ -38,7 +38,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     needs: [make-matrix]
-    outputs: 
+    outputs:
       ids: ${{steps.build-and-push.outputs.digest}}
     strategy:
       fail-fast: false
@@ -139,5 +139,5 @@ jobs:
       - name: create Release file
         run: |
           echo PHPUtils >> Release.md
-          echo ${{needs.build.outputs.}}PHPUtils >> Release.md
+          echo ${{needs.build.outputs.ids}}PHPUtils >> Release.md
           echo PHPUtils >> Release.md
