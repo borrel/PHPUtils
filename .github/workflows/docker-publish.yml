@@ -37,6 +37,9 @@ jobs:
           curl -cv https://www.php.net/releases/index.php?json \
             | jq -c 'reduce .[].supported_versions as $item ([];. + $item)' \
             >> "$GITHUB_OUTPUT"
+
+
+
           
   build:
 
@@ -47,6 +50,15 @@ jobs:
       matrix:
         version: ${{fromJson(needs.make-matrix.outputs.php-versions)}}
         type: [cli,apache,fpm]
+        repo: 
+          - name: "docker.io"
+            repo: "borrel01/phputils"
+            username: ${{ vars.DOCKER_USER }}
+            password: ${{ secrets.DOCKER_KEY }}
+          - name: ghcr.io
+            repo: 'Borrel/PHPUtils'
+            username: ${{ github.repository_owner }}
+            password: ${{ secrets.GITHUB_TOKEN }}
     name: php:${{ matrix.version }}-${{matrix.type}}
     permissions:
       contents: read
@@ -79,19 +91,9 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
-          registry: docker.io
-          username: ${{ vars.DOCKER_USER }}
-          password: ${{ secrets.DOCKER_KEY }}
-
-      # Login against a Docker registry except on PR
-      # https://github.com/docker/login-action
-      - name: Log into registry github
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ${{matrix.repo.name}}
+          username: ${{ matrix.repo.username }}
+          password: ${{ matrix.repo.password }}
       
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
@@ -135,5 +137,9 @@ jobs:
         # against the sigstore community Fulcio instance.
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
       
+  create-release:
+    needs: build 
+    steps:
+      - name: create Release file
+        run: echo TEST >> Release.md
 
-          
