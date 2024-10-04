@@ -25,9 +25,9 @@ jobs:
   make-matrix:
     runs-on: ubuntu-latest
     outputs:
-      php-versions: ${{fromJson(steps.fetch.outputs.supported)}}
-      json: ${{fromJson(steps.fetch.outputs.json)}}
-      latest: ${{fromJson(steps.fetch.outputs.latest)}}
+      php-versions: ${{steps.fetch.outputs.supported}}
+      json: ${{steps.fetch.outputs.json}}
+      latest: ${{steps.fetch.outputs.latest}}
     steps:
       - name: fetch versions
         id: fetch
@@ -56,7 +56,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: ${{needs.make-matrix.outputs.php-versions}}
+        version: ${{fromJson(needs.make-matrix.outputs.php-versions)}}
         type: [cli, apache, fpm]
     name: php:${{ matrix.version }}-${{matrix.type}}
     permissions:
@@ -111,7 +111,7 @@ jobs:
       - name: debug
         run: |
           echo type ${{matrix.type}} ${{matrix.type == 'cli'}}
-          echo 'version "${{matrix.version}}" == "${{needs.make-matrix.outputs.latest}}" ${{matrix.version == needs.make-matrix.outputs.latest}}'
+          echo 'version "${{matrix.version}}" == "${{fromJson(needs.make-matrix.outputs.latest)}}" ${{matrix.version == fromJson(needs.make-matrix.outputs.latest)}}
           echo ref ${{github.ref}} ${{github.ref == 'refs/heads/main'}}
           echo res ${{(matrix.version == needs.make-matrix.outputs.latest) && (github.ref == 'refs/heads/main') && (matrix.type == 'cli')}}
 
