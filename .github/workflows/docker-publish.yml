@@ -113,6 +113,7 @@ jobs:
           echo type ${{matrix.type}}
           echo version ${{matrix.version}} == ${{needs.make-matrix.outputs.latest}}   ${{matrix.version == needs.make-matrix.outputs.latest}}
           echo ref ${{github.ref}}
+          echo vc s${{(matrix.version == needs.make-matrix.outputs.latest) && (github.ref == 'refs/heads/main') && (matrix.type == 'cli')}}
 
       - name: Extract Docker metadata
         id: meta
@@ -145,31 +146,6 @@ jobs:
             VERSION=${{ matrix.version }}
             FLAVOR=${{ matrix.type }}
 
-      - name: upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: image-${{ matrix.version }}-${{matrix.type}}.tgz
-          path: /tmp/build-${{ matrix.version }}-${{matrix.type}}.tgz
-
-  create-release:
-    needs: [build, make-matrix]
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-    steps:
-      - name: create github release
-        uses: actions/create-release@v1
-        with:
-          tag_name: ${{github.ref}}
-          release_name: test
-          body: |
-            PHPUtils 
-            ########
-            ${{steps.artifacts.outputs.artifacts}}
-
-      - name: push docker
-        run: echo fdgd
-
       # Sign the resulting Docker image digest except on PRs.
       # This will only write to the public Rekor transparency log when the Docker
       # repository is public to avoid leaking data.  If you would like to publish
@@ -179,10 +155,8 @@ jobs:
         if: ${{ github.event_name != 'pull_request' }}
         env:
           # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
-          TAGS: |
-            borrel01/phputils:${{ matrix.version }}-${{matrix.type}}
-            ghcr.io/borrel/phputils:${{ matrix.version }}-${{matrix.type}}
-          DIGEST: ${{ needs.build.outputs.ids }}
+          TAGS: ${{steps.meta.outputs.tags}}
+          DIGEST: ${{ steps.build-and-push.outputs.imageid }}
         # This step uses the identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
