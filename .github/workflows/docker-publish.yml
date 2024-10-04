@@ -36,7 +36,12 @@ jobs:
           echo -n "json=" >> "$GITHUB_OUTPUT"
           curl -cv --retry 3 https://www.php.net/releases/index.php?json | \
             tee /tmp/json >> "$GITHUB_OUTPUT"
-
+          cat /tmp/json | jq
+          echo -en "\nsupported=" >> "$GITHUB_OUTPUT"
+          cat /tmp/json | \
+            jq -c 'reduce .[].supported_versions as $item ([];. + $item)' \
+            >> "$GITHUB_OUTPUT"
+          echo >> "$GITHUB_OUTPUT"
           echo -en "\nsupported=" >> "$GITHUB_OUTPUT"
           cat /tmp/json | \
             jq -c 'reduce .[].supported_versions as $item ([];. + $item)' \
@@ -90,7 +95,7 @@ jobs:
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           registry: docker.io
-          username: borrel01/phputils
+          username: borrel01
           password: ${{ secrets.DOCKER_KEY }}
 
       - id: login-github
