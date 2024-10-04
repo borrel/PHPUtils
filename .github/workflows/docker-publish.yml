@@ -34,7 +34,7 @@ jobs:
 
           echo -n "json=" >> "$GITHUB_OUTPUT"
           curl -cv --retry 3 https://www.php.net/releases/index.php?json | \
-            tee "$GITHUB_OUTPUT" >> /tmp/json
+            tee /tmp/json >> "$GITHUB_OUTPUT"
 
           echo -en "\nsupported=" >> "$GITHUB_OUTPUT"
           cat /tmp/json | \
@@ -42,29 +42,9 @@ jobs:
             >> "$GITHUB_OUTPUT"
           echo >> "$GITHUB_OUTPUT"
 
-  make-release:
-    runs-on: ubuntu-latest
-    outputs:
-      release_id: ${{steps.release.outputs.id}}
-      release_url: ${{steps.release.outputs.html_url}}
-      release_upload: ${{steps.release.outputs.upload_url}}
-    steps:
-      - name: Create draft release
-        id: release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.action_ref }}
-          release_name: ${{ github.action_ref }}
-          prerelease: ${{github.action_ref == 'main'}}
-          draft: true
-          body: |
-            PHPUtils
-            ========
   build:
     runs-on: ubuntu-latest
-    needs: [make-matrix, make-release]
+    needs: [make-matrix]
     outputs:
       ids: ${{steps.build-and-push.outputs.digest}}
     strategy:
