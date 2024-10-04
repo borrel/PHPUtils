@@ -117,10 +117,11 @@ jobs:
             docker.io/borrel01/phputils
             ghcr.io/Borrel/PHPUtils
           tags: |
-            type=raw,value=${{matrix.type}}-${{matrix.version}},enabled=${{github.ref == 'refs/heads/main'}}
-            type=raw,value=${{matrix.type}}-${{matrix.version}},enabled=${{github.ref == 'refs/heads/main'}}
-            type=raw,value=${{matrix.type}},enabled=${{(matrix.version == needs.make-matrix.outputs.latest) && (github.ref == 'refs/heads/main')}}
-            type=raw,value=${{matrix.type}}-latest,enabled=${{(matrix.version == needs.make-matrix.outputs.latest) && (github.ref == 'refs/heads/main')}}
+            type=raw,value=${{matrix.type}}-${{matrix.version}},enable=${{github.ref == 'refs/heads/main'}}
+            type=raw,value=${{matrix.type}}-${{matrix.version}},enable=${{github.ref == 'refs/heads/main'}}
+            type=raw,value=${{matrix.type}},enable=${{(matrix.version == needs.make-matrix.outputs.latest) && (github.ref == 'refs/heads/main')}}
+            type=raw,value=${{matrix.type}}-latest,enable=${{(matrix.version == needs.make-matrix.outputs.latest) && (github.ref == 'refs/heads/main')}}
+            type=raw,value=latest,enable=${{(matrix.version == needs.make-matrix.outputs.latest) && (github.ref == 'refs/heads/main') && (matrix.type == 'cli')}}
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - name: Build Docker image
