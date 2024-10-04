@@ -110,10 +110,10 @@ jobs:
       # https://github.com/docker/metadata-action
       - name: debug
         run: |
-          echo type ${{matrix.type}}
-          echo version ${{matrix.version}} == ${{needs.make-matrix.outputs.latest}}   ${{matrix.version == needs.make-matrix.outputs.latest}}
-          echo ref ${{github.ref}}
-          echo vc s${{(matrix.version == needs.make-matrix.outputs.latest) && (github.ref == 'refs/heads/main') && (matrix.type == 'cli')}}
+          echo type ${{matrix.type}} ${{matrix.type == 'cli'}}
+          echo 'version "${{matrix.version}}" == "${{needs.make-matrix.outputs.latest}}" ${{matrix.version == needs.make-matrix.outputs.latest}}'
+          echo ref ${{github.ref}} ${{github.ref == 'refs/heads/main'}}
+          echo res ${{(matrix.version == needs.make-matrix.outputs.latest) && (github.ref == 'refs/heads/main') && (matrix.type == 'cli')}}
 
       - name: Extract Docker metadata
         id: meta
