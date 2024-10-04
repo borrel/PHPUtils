@@ -108,6 +108,12 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
+      - name: debug
+        run: |
+          echo type ${{matrix.type}}
+          echo version ${{matrix.version}}
+          echo ref ${{github.ref}}
+
       - name: Extract Docker metadata
         id: meta
 
