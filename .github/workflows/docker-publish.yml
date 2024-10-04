@@ -140,7 +140,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          outputs: type=docker,dest=/tmp/build-${{ matrix.version }}-${{matrix.type}}.tgz
           build-args: |
             VERSION=${{ matrix.version }}
             FLAVOR=${{ matrix.type }}
@@ -154,7 +153,7 @@ jobs:
         if: ${{ github.event_name != 'pull_request' }}
         env:
           # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
-          TAGS: ${{steps.meta.outputs.tags}}
+          TAGS: ${{ steps.meta.outputs.tags }}
           DIGEST: ${{ steps.build-and-push.outputs.imageid }}
         # This step uses the identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
