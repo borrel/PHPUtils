@@ -48,6 +48,8 @@ jobs:
       - name: Create draft release
         id: release
         uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.action_ref }}
           release_name: ${{ github.action_ref }}
@@ -156,22 +158,6 @@ jobs:
     strategy:
       fail-fast: false
     steps:
-      - name: create Release file
-        run: |
-          echo PHPUtils > Release.md
-          echo ######## >> Release.md
-          echo ${{needs.build.outputs.ids}} >> Release.md
-      - name: get artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: /artifacts
-      - name: list artifacts
-        id: artifacts
-        run: |
-          echo -n artifacts= >> "$GITHUB_OUTPUT"
-          cd /artifacts
-          ls | sed -zE 's/\n([^\n$])/,\1/g' >> "$GITHUB_OUTPUT"
-          ls |
       - name: create github release
         uses: actions/create-release@v1
         with:
