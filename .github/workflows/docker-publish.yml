@@ -25,7 +25,8 @@ jobs:
   make-matrix:
     runs-on: ubuntu-latest
     outputs:
-      php-versions: ${{steps.fetch.outputs.json}}
+      php-versions: ${{steps.fetch.outputs.supported}}
+      json: ${{steps.fetch.outputs.json}}
     steps:
       - name: fetch versions
         id: fetch
