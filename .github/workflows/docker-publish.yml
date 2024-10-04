@@ -50,7 +50,7 @@ jobs:
         uses: actions/create-release@v1
         with:
           tag_name: ${{ github.action_ref }}
-          release_name:  ${{ github.action_ref }}
+          release_name: ${{ github.action_ref }}
           prerelease: ${{github.action_ref == 'main'}}
           draft: true
           body: |
@@ -58,7 +58,7 @@ jobs:
             ========
   build:
     runs-on: ubuntu-latest
-    needs: [make-matrix,make-release]
+    needs: [make-matrix, make-release]
     outputs:
       ids: ${{steps.build-and-push.outputs.digest}}
     strategy:
@@ -105,7 +105,7 @@ jobs:
           registry: docker.io
           username: borrel01/phputils
           password: ${{ secrets.DOCKER_KEY }}
-          
+
       - id: login-github
         name: Log into registry github
         if: github.event_name != 'pull_request'
@@ -119,7 +119,7 @@ jobs:
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
-        with: 
+        with:
           images: |
             docker.io/borrel01/phputils
             ghcr.io/Borrel/PHPUtils
@@ -149,7 +149,7 @@ jobs:
         with:
           name: image-${{ matrix.version }}-${{matrix.type}}.tgz
           path: /tmp/build-${{ matrix.version }}-${{matrix.type}}.tgz
-      
+
   create-release:
     needs: [build, make-matrix]
     runs-on: ubuntu-latest
@@ -162,7 +162,7 @@ jobs:
           echo ######## >> Release.md
           echo ${{needs.build.outputs.ids}} >> Release.md
       - name: get artifacts
-        uses: actions/download-artifact
+        uses: actions/download-artifact@v4
         with:
           path: /artifacts
       - name: list artifacts
@@ -171,7 +171,7 @@ jobs:
           echo -n artifacts= >> "$GITHUB_OUTPUT"
           cd /artifacts
           ls | sed -zE 's/\n([^\n$])/,\1/g' >> "$GITHUB_OUTPUT"
-          ls | 
+          ls |
       - name: create github release
         uses: actions/create-release@v1
         with:
