@@ -27,6 +27,7 @@ jobs:
     outputs:
       php-versions: ${{steps.fetch.outputs.supported}}
       json: ${{steps.fetch.outputs.json}}
+      latest: ${{steps.fetch.outputs.latest}}
     steps:
       - name: fetch versions
         id: fetch
@@ -41,10 +42,9 @@ jobs:
           cat /tmp/json | \
             jq -c 'reduce .[].supported_versions as $item ([];. + $item)' \
             >> "$GITHUB_OUTPUT"
-          echo >> "$GITHUB_OUTPUT"
-          echo -en "\nsupported=" >> "$GITHUB_OUTPUT"
+          echo -en "\latest=" >> "$GITHUB_OUTPUT"
           cat /tmp/json | \
-            jq -c 'reduce .[].supported_versions as $item ([];. + $item)' \
+            jq -c '[max(keys(.))].version' \
             >> "$GITHUB_OUTPUT"
           echo >> "$GITHUB_OUTPUT"
 
