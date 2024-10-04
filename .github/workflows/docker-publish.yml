@@ -31,13 +31,16 @@ jobs:
         id: fetch
         run: |
           set -x
+
           echo -n "json=" >> "$GITHUB_OUTPUT"
           curl -cv --retry 3 https://www.php.net/releases/index.php?json | \
             tee "$GITHUB_OUTPUT" >> /tmp/json
+
           echo -en "\nsupported=" >> "$GITHUB_OUTPUT"
           cat /tmp/json | \
             jq -c 'reduce .[].supported_versions as $item ([];. + $item)' \
             >> "$GITHUB_OUTPUT"
+          echo >> "$GITHUB_OUTPUT"
 
   make-release:
     runs-on: ubuntu-latest
