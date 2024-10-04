@@ -111,7 +111,7 @@ jobs:
       - name: debug
         run: |
           echo type ${{matrix.type}}
-          echo version ${{matrix.version}}
+          echo version ${{matrix.version}} == ${{needs.make-matrix.outputs.latest}}   ${{matrix.version == needs.make-matrix.outputs.latest}}
           echo ref ${{github.ref}}
 
       - name: Extract Docker metadata
