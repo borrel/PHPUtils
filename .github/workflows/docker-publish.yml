@@ -42,7 +42,7 @@ jobs:
           cat /tmp/json | \
             jq -c 'reduce .[].supported_versions as $item ([];. + $item)' \
             >> "$GITHUB_OUTPUT"
-          echo -en "\latest=" >> "$GITHUB_OUTPUT"
+          echo -en "\nlatest=" >> "$GITHUB_OUTPUT"
           cat /tmp/json | \
             jq -c '.[keys | max].version | split(".") | ""+.[0]+"."+.[1]' \
             >> "$GITHUB_OUTPUT"
@@ -117,7 +117,6 @@ jobs:
             docker.io/borrel01/phputils
             ghcr.io/Borrel/PHPUtils
           tags: |
-            type=raw,value=${{matrix.type}}-${{matrix.version}},enable=${{github.ref == 'refs/heads/main'}}
             type=raw,value=${{matrix.type}}-${{matrix.version}},enable=${{github.ref == 'refs/heads/main'}}
             type=raw,value=${{matrix.type}},enable=${{(matrix.version == needs.make-matrix.outputs.latest) && (github.ref == 'refs/heads/main')}}
             type=raw,value=${{matrix.type}}-latest,enable=${{(matrix.version == needs.make-matrix.outputs.latest) && (github.ref == 'refs/heads/main')}}
