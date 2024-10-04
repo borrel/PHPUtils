@@ -30,6 +30,7 @@ jobs:
       - name: fetch versions
         id: fetch
         run: |
+          set -x
           echo -n "json=" >> "$GITHUB_OUTPUT"
           curl -cv --retry 3 https://www.php.net/releases/index.php?json | \
             tee "$GITHUB_OUTPUT" >> /tmp/json
