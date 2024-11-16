@@ -18,7 +18,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     echo -n 'bcmath gd gmp mcrypt mysqli opcache pdo_mysql redis soap sockets tidy xdebug zip @composer' | \
-    xargs -P1 -i -d ' ' sh -c "echo -n ':' ; echo -n ':group:' ;echo -n ':ext-' ;echo "'{}'" ;echo Installing "'{}'" ;install-php-extensions '{}' ;echo -n ':' ;echo -n ':endgroup:' ; echo ':'"
+    xargs -P1 -i -d ' ' sh -c "echo -n ':' ; echo -n ':group:' ;echo -n ':ext-' ;echo "'{}'" ;echo Installing "'{}'" ;date; install-php-extensions '{}' ;echo -n ':' ;echo -n ':endgroup:' ; echo ':'"
 
 #    xargs -it -L1 -d ' ' echo '::group::{}' ';' install-php-extensions '{}' ';' echo '::endgroup::' ';exit 100'
 
