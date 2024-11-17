@@ -2,24 +2,59 @@ ARG VERSION=8.3
 ARG FLAVOR=cli
 
 FROM php:${VERSION}${FLAVOR:+${VERSION:+-}}${FLAVOR}
-ARG VERSION
 ARG FLAVOR
+ARG VERSION
 LABEL version="$VERSION" \
-      flavor="$FLAVOR" \
-      orig-tag=${VERSION}${FLAVOR:+${VERSION:+-}}${FLAVOR}
-
-ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
-
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update && \
-    apt-get install -y git screen byobu default-mysql-client curl sudo nano
-
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    echo -n 'bcmath gd gmp mcrypt mysqli opcache pdo_mysql redis soap sockets tidy xdebug zip @composer' | \
-    xargs -P1 -i -d ' ' sh -c "echo -n ':' ; echo -n ':group:' ;echo -n ':ext-' ;echo "'{}'" ;echo Installing "'{}'" ;date; install-php-extensions '{}' ;echo -n ':' ;echo -n ':endgroup:' ; echo ':'"
-
-#    xargs -it -L1 -d ' ' echo '::group::{}' ';' install-php-extensions '{}' ';' echo '::endgroup::' ';exit 100'
+    flavor="$FLAVOR" \
+    orig-tag=${VERSION}${FLAVOR:+${VERSION:+-}}${FLAVOR}
 
 ADD README.md /README.md
+
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+
+#keep apt cache
+RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    DEBIAN_FRONTEND=noninteractive apt-get update
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    git \
+    screen \
+    default-mysql-client \
+    curl \
+    sudo \
+    nano \
+    ssh \
+    bind9-utils \
+    traceroute \
+    procps \
+    iotop
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    IPE_KEEP_SYSPKG_CACHE=ture install-php-extensions \
+    sockets-stable \
+    bcmath-stable \
+    gd-stable \
+    imagick \
+    exif-stable \
+    mysqli-stable \
+    pgsql-stable \
+    pdo_mysql-stable \
+    pdo_pgsql-stable \
+    redis-stable \
+    soap-stable \
+    opcache-stable \
+    gmp-stable \
+    tidy-stable \
+    xdebug-stable\
+    inotify-stable \
+    bz2-stabe \
+    lz4 \
+    lzf \
+    zip-stable \
+    mcrypt-stable \
+    ssh2 \
+    yaml-stable \
+    @composer
+
