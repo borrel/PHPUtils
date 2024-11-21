@@ -70,13 +70,13 @@ jobs:
           context: .
           tags: baseimage:${{matrix.type}}-${{matrix.version}}
           outputs: type=docker,dest=/tmp/baseimage-${{matrix.type}}-${{matrix.version}}.tar
-      
+          file: base.Dockerfile
+
       - id: upload
         uses: actions/upload-artifact@v4
         with:
           name: baseimage-${{matrix.type}}-${{matrix.version}}
-          path: /tmp/baseimage-${{matrix.type}}-${{matrix.version}}.tar 
-
+          path: /tmp/baseimage-${{matrix.type}}-${{matrix.version}}.tar
 
   build:
     runs-on: ubuntu-latest
@@ -123,7 +123,7 @@ jobs:
           registry: ghcr.io
           username: Borrel/PHPUtils
           password: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - id: meta
         uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
         with:
@@ -146,7 +146,7 @@ jobs:
         with:
           name: baseimage-${{matrix.type}}-${{matrix.version}}
           path: /tmp
-      
+
       - name: Load image
         run: |
           docker load --input /tmp/baseimage-${{matrix.type}}-${{matrix.version}}.tar
@@ -161,6 +161,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          file: ${{matrix.variant}}.Dockerfile
           build-args: |
             VERSION=${{ matrix.version }}
             FLAVOR=${{ matrix.type }}
