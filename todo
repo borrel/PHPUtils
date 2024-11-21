@@ -1,4 +1,3 @@
-configure php.ini => dev/prod
 configure apache => dev/prod
 
 configure Xdebug (ini + dockerPorts) => dev
