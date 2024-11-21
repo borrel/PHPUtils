@@ -12,9 +12,10 @@ LABEL version="$VERSION" \
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked \
     IPE_KEEP_SYSPKG_CACHE=ture install-php-extensions \
     xdebug-stable \
-    @composer 
+    @composer
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked  \
+    DEBIAN_FRONTEND=noninteractive apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
         git \
         screen \

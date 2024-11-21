@@ -16,8 +16,7 @@ COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr
 #keep apt cache for cache mount
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
 
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked DEBIAN_FRONTEND=noninteractive \
-    apt-get update
+
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked IPE_KEEP_SYSPKG_CACHE=true \
     install-php-extensions \
