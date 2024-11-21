@@ -11,11 +11,11 @@ LABEL version="$VERSION" \
 
 # Only install these on cli
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked IPE_KEEP_SYSPKG_CACHE=ture \
-    [ "${FLAVOR}" != "cli" ] && true || install-php-extensions \
+    if [ "${FLAVOR}" == "cli" ] ;then ;install-php-extensions \
     inotify-stable \
     sockets-stable \
-    @composer
-
+    @composer \
+    fi
 
 #remove obselete config files and pagages
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked DEBIAN_FRONTEND=noninteractive \
