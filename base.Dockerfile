@@ -1,13 +1,13 @@
 ARG VERSION=8.3
 ARG FLAVOR=cli
 
-FROM php:${VERSION}${FLAVOR:+${VERSION:+-}}${FLAVOR}
+FROM php:${VERSION}-${FLAVOR}
 ARG FLAVOR
 ARG VERSION
 LABEL version="$VERSION" \
     flavor="$FLAVOR" \
-    orig-tag=${VERSION}${FLAVOR:+${VERSION:+-}}${FLAVOR} \
-    variant=dev
+    orig-tag=${VERSION}-${FLAVOR} \
+    variant=base
 
 ADD README.md /README.md
 

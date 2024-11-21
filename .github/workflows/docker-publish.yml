@@ -68,15 +68,15 @@ jobs:
         uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
         with:
           context: .
-          tags: baseimage:${{matrix.type}}-${{matrix.version}}
-          outputs: type=docker,dest=/tmp/baseimage-${{matrix.type}}-${{matrix.version}}.tar
+          tags: baseimage:${{matrix.version}}-${{matrix.type}}
+          outputs: type=docker,dest=/tmp/baseimage-${{matrix.version}}-${{matrix.type}}.tar
           file: base.Dockerfile
 
       - id: upload
         uses: actions/upload-artifact@v4
         with:
-          name: baseimage-${{matrix.type}}-${{matrix.version}}
-          path: /tmp/baseimage-${{matrix.type}}-${{matrix.version}}.tar
+          name: baseimage-${{matrix.version}}-${{matrix.type}}
+          path: /tmp/baseimage-${{matrix.version}}-${{matrix.type}}.tar
 
   build:
     runs-on: ubuntu-latest
@@ -144,12 +144,12 @@ jobs:
       - id: get-base
         uses: actions/download-artifact@v4
         with:
-          name: baseimage-${{matrix.type}}-${{matrix.version}}
+          name: baseimage-${{matrix.version}}-${{matrix.type}}
           path: /tmp
 
       - name: Load image
         run: |
-          docker load --input /tmp/baseimage-${{matrix.type}}-${{matrix.version}}.tar
+          docker load --input /tmp/baseimage-${{matrix.version}}-${{matrix.type}}.tar
           docker image ls -a
       - id: build-and-push
         uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
