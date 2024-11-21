@@ -11,7 +11,6 @@ LABEL version="$VERSION" \
 
 ADD README.md /README.md
 
-RUN echo '```' >> /README.md
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 #keep apt cache for cache mount
@@ -42,3 +41,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,t
     mcrypt-stable \
     ssh2 \
     yaml-stable
+
+# Only install these on cli
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    if [ "${FLAVOR}" == "cli" ] ;then ; IPE_KEEP_SYSPKG_CACHE=ture install-php-extensions \
+    inotify-stable \
+    sockets-stable \
+    ;fi

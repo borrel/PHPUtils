@@ -11,17 +11,8 @@ LABEL version="$VERSION" \
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked \
     IPE_KEEP_SYSPKG_CACHE=ture install-php-extensions \
-    xdebug-stable 
-
-# Only install these on cli
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    if [ "${FLAVOR}" == "cli" ] ;then ; IPE_KEEP_SYSPKG_CACHE=ture install-php-extensions \
-    inotify-stable \
-    sockets-stable \
-    ;fi
-
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    IPE_KEEP_SYSPKG_CACHE=ture install-php-extensions @composer 
+    xdebug-stable \
+    @composer 
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked  \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -45,8 +36,16 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,t
     apt-get purge ~c
 
 #append readme
-RUN echo VARIANT=dev >> /README.md
-RUN echo FLAVOR=${FLAVOR} >> /README.md
-RUN echo >> /README.md
-RUN php -i >> /README.md
-RUN echo '```' >> /README.md
+RUN echo '' >> /README.md ;\
+    echo 'Build info:' >> /README.md ;\
+    echo '###' >> /README.md ;\
+    echo '```' >> /README.md ;\
+    echo VARIANT=dev >> /README.md ;\
+    echo FLAVOR=${FLAVOR} >> /README.md ;\
+    echo '```' >> /README.md ;\
+    echo '' >> /README.md ;\
+    echo 'PHP info:' >> /README.md ;\
+    echo '###' >> /README.md ;\
+    echo '```' >> /README.md ;\
+    php -i >> /README.md ;\
+    echo '```' >> /README.md
