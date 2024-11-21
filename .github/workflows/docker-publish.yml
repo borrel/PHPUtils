@@ -15,19 +15,13 @@ on:
   pull_request:
     branches: ["main"]
 
-env:
-  # Use docker.io for Docker Hub if empty
-  REGISTRY: docker.io
-  # github.repository as <account>/<repo>
-  IMAGE_NAME: ${{ vars.DOCKER_USER }}/PHPUtils
-
 jobs:
   make-matrix:
     runs-on: ubuntu-latest
     outputs:
-      php-versions: ${{steps.fetch.outputs.supported}}
-      json: ${{steps.fetch.outputs.json}}
-      latest: ${{steps.fetch.outputs.latest}}
+      php-versions: ${{ steps.fetch.outputs.supported }}
+      json: ${{ steps.fetch.outputs.json }}
+      latest: ${{ steps.fetch.outputs.latest }}
     steps:
       - name: fetch versions
         id: fetch
@@ -53,7 +47,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: ${{fromJson(needs.make-matrix.outputs.php-versions)}}
+        version: ${{ fromJson(needs.make-matrix.outputs.php-versions) }}
         type: [cli, apache, fpm]
     permissions:
       contents: read
@@ -82,35 +76,28 @@ jobs:
     runs-on: ubuntu-latest
     needs: [make-matrix, build-base]
     outputs:
-      ids: ${{steps.build-and-push.outputs.digest}}
+      ids: ${{ steps.build-and-push.outputs.digest }}
     strategy:
       fail-fast: false
       matrix:
-        version: ${{fromJson(needs.make-matrix.outputs.php-versions)}}
+        version: ${{ fromJson(needs.make-matrix.outputs.php-versions) }}
         type: [cli, apache, fpm]
         variant: [prod, dev]
-    name: ${{format('php:{0}-{1}-{2}', matrix.version, matrix.type, matrix.variant) }}
+    name: ${{ format('php:{0}-{1}-{2}', matrix.version, matrix.type, matrix.variant) }}
     permissions:
       contents: read
       packages: write
-      # This is used to complete the identity challenge
-      # with sigstore/fulcio when running outside of PRs.
-      # id-token: write
 
     steps:
-      - id: ceckout
+      - name: ceckout
         uses: actions/checkout@v4
 
-      - id: setup-cosigin
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-        uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
-
-      - id: setup-buildx
+      - name: Setup Buildx
         uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3.7.1
         with:
           driver: docker
 
-      - id: login-docker
+      - name: Login Docker
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
@@ -118,7 +105,7 @@ jobs:
           username: borrel01
           password: ${{ secrets.DOCKER_KEY }}
 
-      - id: login-github
+      - name: Login Github
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
@@ -126,7 +113,8 @@ jobs:
           username: Borrel/PHPUtils
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - id: meta
+      - name: Get Metadata
+        id: meta
         uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
         with:
           images: |
@@ -154,7 +142,8 @@ jobs:
           docker load --input /tmp/baseimage-${{matrix.version}}-${{matrix.type}}.tar
           docker image ls -a
 
-      - id: build-and-push
+      - name: build and push
+        id: build-and-push
         uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
         with:
           context: .
@@ -169,7 +158,8 @@ jobs:
             FLAVOR=${{ matrix.type }}
             VARIANT=${{ matrix.variant}}
 
-      - id: php-info
+      - name: extract build info
         run: |
           docker create --name tmp docker.io/borrel01/phputils:${{matrix.type}}-${{matrix.version}}-${{matrix.variant}}
-          docker cp tmp:/README.md - >> $GITHUB_STEP_SUMMARY
+          docker cp tmp:/README.md /tmp/README-${{matrix.type}}-${{matrix.version}}-${{matrix.variant}}.md
+          cat /tmp/README-${{matrix.type}}-${{matrix.version}}-${{matrix.variant}}.md >> $GITHUB_STEP_SUMMARY
