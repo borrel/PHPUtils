@@ -27,4 +27,4 @@ RUN echo VARIANT=prod >> /README.md
 RUN echo FLAVOR=${FLAVOR} >> /README.md
 RUN echo >> /README.md
 RUN php -i >> /README.md
-RUN echo ``` >> /README.md
+RUN echo '```' >> /README.md

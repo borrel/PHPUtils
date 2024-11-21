@@ -11,7 +11,7 @@ LABEL version="$VERSION" \
 
 ADD README.md /README.md
 
-RUN echo ``` >> /README.md
+RUN echo '```' >> /README.md
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 #keep apt cache for cache mount
