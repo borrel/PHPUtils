@@ -20,7 +20,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,t
     sockets-stable \
     @composer
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked DEBIAN_FRONTEND=noninteractive \
-    [ "${FLAVOR}" = "cli" ] && apt-get install -y \
+    [ "${FLAVOR}" != "cli" ] && true ||  && apt-get install -y \
     git \
     screen \
     default-mysql-client \

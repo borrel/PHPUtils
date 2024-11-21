@@ -173,3 +173,8 @@ jobs:
           TAGS: ${{ steps.meta.outputs.tags }}
           DIGEST: ${{ steps.build-and-push.outputs.imageid }}
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+
+      - id: php-info
+        run: |
+          docker create --name tmp ${{matrix.type}}-${{matrix.version}}-${{matrix.variant}}
+          docker cp tmp:/README.md - >> $GITHUB_STEP_SUMMARY
