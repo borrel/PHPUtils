@@ -1,7 +1,7 @@
 ARG VERSION=8.3
 ARG FLAVOR=cli
 
-FROM baseimage:${VERSION}-${FLAVOR}
+FROM baseimage:${VERSION}-${FLAVOR} as build
 ARG FLAVOR
 ARG VERSION
 LABEL version="$VERSION" \
@@ -9,27 +9,49 @@ LABEL version="$VERSION" \
     orig-tag=${VERSION}-${FLAVOR} \
     variant=prod
 
-#remove obselete config files and pagages
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked DEBIAN_FRONTEND=noninteractive \
-    apt-get autoremove
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked DEBIAN_FRONTEND=noninteractive \
-    apt-get purge ~c
-
 #create a stripped php.ini
 RUN echo ';stripped version of /usr/local/etc/php/php.ini-production' > /usr/local/etc/php/php.ini ;\
     cat /usr/local/etc/php/php.ini-production | grep -E '^[\s]*[^;]' | sed -zE 's/(\[\w+\]\s*\n)+(\[\w+\])/\2/g' >> /usr/local/etc/php/php.ini
 
-#append readme
-RUN echo '' >> /README.md ;\
-    echo 'Build info:' >> /README.md ;\
-    echo '###' >> /README.md ;\
-    echo '```' >> /README.md ;\
-    echo VARIANT=dev >> /README.md ;\
-    echo FLAVOR=${FLAVOR} >> /README.md ;\
-    echo '```' >> /README.md ;\
+
+RUN set -xe ;\
+    #append readme
     echo '' >> /README.md ;\
-    echo 'PHP info:' >> /README.md ;\
-    echo '###' >> /README.md ;\
-    echo '```' >> /README.md ;\
-    php -i >> /README.md ;\
+    echo -e '\nBuild info:\n###\ntag: ${VERSION}-${FLAVOR}-prod' >> /README.md ;\
+    #save required packages
+    ldd `php-config --php-binary` $(find `php-config --extension-dir` -name *.so) \
+    | grep -E '=> /' \
+    | sed -E 's/^.* => (\/.*) \(0x[a-f0-9]+\)$.*/\1/m' \
+    | xargs basename -a \
+    | xargs dpkg-query --search \
+    | cut -d: -f1 \
+    | sort -u > /tmp/packages ;\
+    #strip tests
+    rm -rf /usr/local/lib/php/test ;\
+    # smoke test
+    test "$(php -m 2>&1 | tee /dev/stderr | grep 'PHP Warning' | wc -l)" -eq 0
+
+
+FROM debian:bookworm-slim
+RUN --mount=from=build,target=/tmp/build --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    set -xe ;\
+    #install the bare minimum
+    export DEBIAN_FRONTEND=noninteractive ;\
+    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/99-custom ;\
+    echo 'APT::Install-Recommends "false";' >> /etc/apt/apt.conf.d/99-custom ;\
+    echo 'APT::AutoRemove::RecommendsImportant "false";' >> /etc/apt/apt.conf.d/99-custom ;\
+    echo 'APT::AutoRemove::SuggestsImportant "false";' >> /etc/apt/apt.conf.d/99-custom ;\
+    apt-get update ;\
+    apt-mark auto '.*' > /dev/null;\
+    cat /tmp/build/tmp/packages | xargs -tr apt-get install -y ca-certificates ;\
+    apt-get autoremove ;\
+    apt-get purge ~c ;\
+    apt-get update ;\
+    cp -vr /tmp/build/usr/local/bin /tmp/build/usr/local/etc /tmp/build/usr/local/lib /usr/local/ ;\
+    test "$(php -m 2>&1 | tee /dev/stderr | grep 'PHP Warning' | wc -l)" -eq 0 ;\
+    #append readme info
+    echo -e '\nPHP info:\n###\n````' >> /README.md ;\
+    php -i 2>&1 >> /README.md ;\
     echo '```' >> /README.md
+
+ENTRYPOINT ["docker-php-entrypoint"]

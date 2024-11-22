@@ -116,15 +116,17 @@ jobs:
         uses: docker/metadata-action@369eb591f429131d6889c46b94e711f089e6ca96 # v5.6.1
         with:
           images: |
-            docker.io/borrel01/phputils
+            docker.io/borrel/php
             ghcr.io/Borrel/PHPUtils
           tags: |
-            type=raw,value=latest,enable=${{matrix.version == fromJson(needs.make-matrix.outputs.latest) && (matrix.type == 'cli') && matrix.variant == 'prod'}}
-            type=raw,value=${{matrix.type}},enable=${{matrix.version == fromJson(needs.make-matrix.outputs.latest) && matrix.variant == 'prod'}}
-            type=raw,value=${{matrix.type}}-latest,enable=${{matrix.version == fromJson(needs.make-matrix.outputs.latest) && matrix.variant == 'prod'}}
+            type=raw,value=latest,enable=${{ matrix.version == fromJson(needs.make-matrix.outputs.latest) && (matrix.type == 'cli') && matrix.variant == 'prod'}}
+            type=raw,value=${{matrix.type}},enable=${{ matrix.version == fromJson(needs.make-matrix.outputs.latest) && matrix.variant == 'prod' }}
+            type=raw,value=${{matrix.type}}-latest,enable=${{ matrix.version == fromJson(needs.make-matrix.outputs.latest) && matrix.variant == 'prod'}}
 
-            type=raw,value=${{matrix.type}}-latest-${{matrix.variant}},enable=${{(matrix.version == fromJson(needs.make-matrix.outputs.latest))}}
-            type=raw,value=${{matrix.type}}-${{matrix.variant}},enable=${{(matrix.version == fromJson(needs.make-matrix.outputs.latest))}}
+            type=raw,value=${{matrix.type}}-latest-${{matrix.variant}},enable=${{(matrix.version == fromJson(needs.make-matrix.outputs.latest)) }}
+            type=raw,value=${{matrix.type}}-${{matrix.variant}},enable=${{(matrix.version == fromJson(needs.make-matrix.outputs.latest)) }}
+            
+            type=raw,value=${{matrix.variant}},enable=${{(matrix.version == fromJson(needs.make-matrix.outputs.latest))  && (matrix.type == 'cli') }}
 
             type=raw,value=${{matrix.type}}-${{matrix.version}},enable=${{matrix.variant == 'prod'}}
             type=raw,value=${{matrix.type}}-${{matrix.version}}-${{matrix.variant}}

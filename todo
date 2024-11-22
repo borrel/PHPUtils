@@ -1,4 +1,11 @@
 configure apache => dev/prod
 
-configure Xdebug (ini + dockerPorts) => dev
+configure Xdebug => dev (wip)
+    => php.ini
+    => proxy ?
+
 configure xcache => dev/prod
+
+generate the dockerfiles
+    => combine prod/dev
+    => set CMD [from upstream]?

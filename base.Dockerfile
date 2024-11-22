@@ -14,11 +14,14 @@ ADD README.md /README.md
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 #keep apt cache for cache mount
-RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
+RUN rm -f /etc/apt/apt.conf.d/docker-clean ;\
+    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/99-custom ;\
+    echo 'APT::Install-Recommends "false";' >> /etc/apt/apt.conf.d/99-custom ;\
+    echo 'APT::AutoRemove::RecommendsImportant "false";' >> /etc/apt/apt.conf.d/99-custom ;\
+    echo 'APT::AutoRemove::SuggestsImportant "false";' >> /etc/apt/apt.conf.d/99-custom 
 
 
-
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked IPE_KEEP_SYSPKG_CACHE=true \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked IPE_ICU_EN_ONLY=1 IPE_KEEP_SYSPKG_CACHE=true \
     install-php-extensions \
     bcmath-stable \
     gd-stable \
@@ -43,7 +46,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,t
 
 # Only install these on cli
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    if [ "${FLAVOR}" = "cli" ] ;then IPE_KEEP_SYSPKG_CACHE=true install-php-extensions \
+    if [ "${FLAVOR}" = "cli" ] ;then IPE_ICU_EN_ONLY=1 IPE_KEEP_SYSPKG_CACHE=true install-php-extensions \
     inotify-stable \
     sockets-stable \
     ; fi
