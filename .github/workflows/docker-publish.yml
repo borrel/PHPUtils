@@ -100,7 +100,7 @@ jobs:
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           registry: docker.io
-          username: borrel01
+          username: borrel
           password: ${{ secrets.DOCKER_KEY }}
 
       - name: Login Github
@@ -125,7 +125,7 @@ jobs:
 
             type=raw,value=${{matrix.type}}-latest-${{matrix.variant}},enable=${{(matrix.version == fromJson(needs.make-matrix.outputs.latest)) }}
             type=raw,value=${{matrix.type}}-${{matrix.variant}},enable=${{(matrix.version == fromJson(needs.make-matrix.outputs.latest)) }}
-            
+
             type=raw,value=${{matrix.variant}},enable=${{(matrix.version == fromJson(needs.make-matrix.outputs.latest))  && (matrix.type == 'cli') }}
 
             type=raw,value=${{matrix.type}}-${{matrix.version}},enable=${{matrix.variant == 'prod'}}
