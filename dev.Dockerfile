@@ -4,6 +4,7 @@ ARG FLAVOR=cli
 FROM baseimage:${VERSION}-${FLAVOR} as build
 ARG FLAVOR
 ARG VERSION
+
 LABEL version="$VERSION" \
     flavor="$FLAVOR" \
     orig-tag=${VERSION}${FLAVOR:+${VERSION:+-}}${FLAVOR} \
@@ -24,7 +25,7 @@ RUN echo ';stripped version of /usr/local/etc/php/php.ini-development' > /usr/lo
 RUN set -xe ;\
     #append readme
     echo '' >> /README.md ;\
-    echo -e '\nBuild info:\n###\ntag: ${VERSION}-${FLAVOR}-prod' >> /README.md ;\
+    echo -e '\nBuild info:\n###\ntag: ${VERSION}-${FLAVOR}-dev' >> /README.md ;\
     #save required packages
     ldd `php-config --php-binary` $(find `php-config --extension-dir` -name *.so) \
     | grep -E '=> /' \
@@ -45,9 +46,23 @@ RUN --mount=from=build,target=/tmp/build --mount=type=cache,target=/var/cache/ap
     echo 'APT::Install-Recommends "false";' >> /etc/apt/apt.conf.d/99-custom ;\
     echo 'APT::AutoRemove::RecommendsImportant "false";' >> /etc/apt/apt.conf.d/99-custom ;\
     echo 'APT::AutoRemove::SuggestsImportant "false";' >> /etc/apt/apt.conf.d/99-custom ;\
+    rm /etc/apt/apt.conf.d/docker-clean ;\
     apt-get update ;\
     apt-mark auto '.*' > /dev/null;\
-    cat /tmp/build/tmp/packages | xargs -tr apt-get install -y ca-certificates ;\
+    cat /tmp/build/tmp/packages | xargs -tr apt-get install -y \
+        ca-certificates \
+        git \
+        screen \
+        default-mysql-client \
+        curl \
+        sudo \
+        nano \
+        ssh \
+        bind9-utils \
+        traceroute \
+        procps \
+        iotop \
+        openssl ;\
     apt-get autoremove ;\
     apt-get purge ~c ;\
     apt-get update ;\

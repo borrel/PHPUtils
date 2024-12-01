@@ -46,7 +46,7 @@ jobs:
       fail-fast: false
       matrix:
         version: ${{ fromJson(needs.make-matrix.outputs.php-versions) }}
-        type: [cli, apache, fpm]
+        type: [fpm]
     permissions:
       contents: read
     steps:
@@ -79,7 +79,7 @@ jobs:
       fail-fast: false
       matrix:
         version: ${{ fromJson(needs.make-matrix.outputs.php-versions) }}
-        type: [cli, apache, fpm]
+        type: [cli, fpm]
         variant: [prod, dev]
     name: ${{ format('php:{0}-{1}-{2}', matrix.version, matrix.type, matrix.variant) }}
     permissions:
