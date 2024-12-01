@@ -48,7 +48,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,t
 #create a stripped php.ini
 RUN echo ';stripped version of /usr/local/etc/php/php.ini-development' > /usr/local/etc/php/php.ini ;\
     cat /usr/local/etc/php/php.ini-development | grep -E '^[\s]*[^;]' | sed -zE 's/(\[\w+\]\s*\n)+(\[\w+\])/\2/g' >> /usr/local/etc/php/php.ini;\
-#configure xdebug
+    #configure xdebug
     echo xdebug.mode = debug,develop >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 RUN set -xe ;\
@@ -94,10 +94,10 @@ RUN --mount=from=build,target=/tmp/build --mount=type=cache,target=/var/cache/ap
         traceroute \
         procps \
         iotop \
-        openssl ;\
+        openssl \
+        ssh-client;\
     apt-get autoremove ;\
     apt-get purge ~c ;\
-    apt-get update ;\
     cp -vr /tmp/build/usr/local/bin /tmp/build/usr/local/etc /tmp/build/usr/local/lib /usr/local/ ;\
     test "$(php -m 2>&1 | tee /dev/stderr | grep 'PHP Warning' | wc -l)" -eq 0 ;\
     #append readme info
