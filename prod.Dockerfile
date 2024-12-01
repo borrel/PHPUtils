@@ -1,9 +1,47 @@
-ARG VERSION=8.3
+ARG VERSION
 ARG FLAVOR=cli
 
-FROM baseimage:${VERSION} as build
+FROM php:${VERSION}-${FLAVOR} as build
 ARG FLAVOR
 ARG VERSION
+LABEL version="$VERSION" \
+    flavor="$FLAVOR" \
+    orig-tag=${VERSION}-${FLAVOR} \
+    variant=base
+
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+#keep apt cache for cache mount
+RUN rm -f /etc/apt/apt.conf.d/docker-clean ;\
+    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/99-custom ;\
+    echo 'APT::Install-Recommends "false";' >> /etc/apt/apt.conf.d/99-custom ;\
+    echo 'APT::AutoRemove::RecommendsImportant "false";' >> /etc/apt/apt.conf.d/99-custom ;\
+    echo 'APT::AutoRemove::SuggestsImportant "false";' >> /etc/apt/apt.conf.d/99-custom 
+
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    IPE_ICU_EN_ONLY=1 IPE_KEEP_SYSPKG_CACHE=true install-php-extensions \
+    bcmath-stable \
+    gd-stable \
+    imagick \
+    exif \
+    mysqli \
+    pgsql \
+    pdo_mysql \
+    pdo_pgsql \
+    redis-stable \
+    soap \
+    opcache \
+    gmp \
+    tidy \
+    bz2 \
+    lz4 \
+    lzf \
+    zip \
+    mcrypt-stable \
+    ssh2 \
+    yaml-stable \
+    inotify-stable \
+    sockets;
 
 #create a stripped php.ini
 RUN echo ';stripped version of /usr/local/etc/php/php.ini-production' > /usr/local/etc/php/php.ini ;\
@@ -12,8 +50,7 @@ RUN echo ';stripped version of /usr/local/etc/php/php.ini-production' > /usr/loc
 
 RUN set -xe ;\
     #append readme
-    echo '' >> /README.md ;\
-    echo -e '\nBuild info:\n###\ntag: ${VERSION}-${FLAVOR}-prod' >> /README.md ;\
+    echo -e '\nBuild info:\n###\ntag: ${VERSION}-${FLAVOR}-prod\n' >> /README.md ;\
     #save required packages
     ldd `php-config --php-binary` $(find `php-config --extension-dir` -name *.so) \
     | grep -E '=> /' \
@@ -26,7 +63,6 @@ RUN set -xe ;\
     rm -rf /usr/local/lib/php/test ;\
     # smoke test
     test "$(php -m 2>&1 | tee /dev/stderr | grep 'PHP Warning' | wc -l)" -eq 0
-
 
 FROM debian:bookworm-slim
 RUN --mount=from=build,target=/tmp/build --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked \

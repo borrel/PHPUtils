@@ -39,32 +39,6 @@ jobs:
             jq -c '.[keys | max].version | split(".") | ""+.[0]+"."+.[1]' \
             >> "$GITHUB_OUTPUT"
           echo >> "$GITHUB_OUTPUT"
-  build-base:
-    runs-on: ubuntu-latest
-    needs: [make-matrix]
-    strategy:
-      fail-fast: false
-      matrix:
-        version: ${{ fromJson(needs.make-matrix.outputs.php-versions) }}
-        type: [fpm]
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3.7.1
-      - uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
-        with:
-          context: .
-          tags: baseimage:${{matrix.version}}
-          outputs: type=docker,dest=/tmp/baseimage-${{matrix.version}}.tar
-          file: base.Dockerfile
-          cache-to: type=gha
-          cache-from: type=gha
-      - uses: actions/upload-artifact@v4
-        with:
-          name: baseimage-${{matrix.version}}
-          path: /tmp/baseimage-${{matrix.version}}.tar
-
   build:
     runs-on: ubuntu-latest
     needs: [make-matrix, build-base]
@@ -84,8 +58,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3.7.1
-        with:
-          driver: docker
       - uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0name: Login Docker
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         with:
@@ -150,6 +122,6 @@ jobs:
 
       - name: extract build info
         run: |
-          docker create --name tmp docker.io/borrel01/phputils:${{matrix.type}}-${{matrix.version}}-${{matrix.variant}}
+          docker create --name tmp docker.io/borrel/php:${{matrix.type}}-${{matrix.version}}-${{matrix.variant}}
           docker cp tmp:/README.md /tmp/README-${{matrix.type}}-${{matrix.version}}-${{matrix.variant}}.md
           cat /tmp/README-${{matrix.type}}-${{matrix.version}}-${{matrix.variant}}.md >> $GITHUB_STEP_SUMMARY
