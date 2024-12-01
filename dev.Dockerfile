@@ -37,7 +37,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,t
     lz4 \
     lzf \
     zip \
-    mcrypt-stable \
     ssh2 \
     yaml-stable \
     inotify-stable \
