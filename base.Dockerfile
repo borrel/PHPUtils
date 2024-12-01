@@ -26,20 +26,20 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,t
     bcmath-stable \
     gd-stable \
     imagick \
-    exif-stable \
-    mysqli-stable \
-    pgsql-stable \
-    pdo_mysql-stable \
-    pdo_pgsql-stable \
+    exif \
+    mysqli \
+    pgsql \
+    pdo_mysql \
+    pdo_pgsql \
     redis-stable \
-    soap-stable \
-    opcache-stable \
-    gmp-stable \
-    tidy-stable \
-    bz2-stabe \
+    soap \
+    opcache \
+    gmp \
+    tidy \
+    bz2 \
     lz4 \
     lzf \
-    zip-stable \
+    zip \
     mcrypt-stable \
     ssh2 \
     yaml-stable
@@ -48,5 +48,5 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,t
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked \
     if [ "${FLAVOR}" = "cli" ] ;then IPE_ICU_EN_ONLY=1 IPE_KEEP_SYSPKG_CACHE=true install-php-extensions \
     inotify-stable \
-    sockets-stable \
+    sockets \
     ; fi

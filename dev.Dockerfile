@@ -1,7 +1,7 @@
 ARG VERSION=8.3
 ARG FLAVOR=cli
 
-FROM baseimage:${VERSION}-${FLAVOR} as build
+FROM baseimage:${VERSION} as build
 ARG FLAVOR
 ARG VERSION
 
