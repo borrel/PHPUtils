@@ -42,7 +42,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,t
     yaml-stable \
     inotify-stable \
     sockets;
-
+#end base
 #additional dev packages
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked \
     IPE_KEEP_SYSPKG_CACHE=ture install-php-extensions \
