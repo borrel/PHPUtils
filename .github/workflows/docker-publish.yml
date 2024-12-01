@@ -41,7 +41,7 @@ jobs:
           echo >> "$GITHUB_OUTPUT"
   build:
     runs-on: ubuntu-latest
-    needs: [make-matrix, build-base]
+    needs: [make-matrix]
     outputs:
       ids: ${{ steps.build-and-push.outputs.digest }}
     strategy:
@@ -90,17 +90,6 @@ jobs:
 
             type=raw,value=${{matrix.type}}-${{matrix.version}},enable=${{matrix.variant == 'prod'}}
             type=raw,value=${{matrix.type}}-${{matrix.version}}-${{matrix.variant}}
-
-      - name: Get Base
-        uses: actions/download-artifact@v4
-        with:
-          name: baseimage-${{matrix.version}}
-          path: /tmp
-
-      - name: Load Base
-        run: |
-          docker load --input /tmp/baseimage-${{matrix.version}}.tar
-          docker image ls -a
 
       - name: build and push
         id: build-and-push
