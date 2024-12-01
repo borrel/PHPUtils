@@ -1,13 +1,9 @@
 ARG VERSION
 ARG FLAVOR=cli
 
-FROM php:${VERSION}-${FLAVOR} as build
+FROM php:${VERSION}-${FLAVOR} AS build
 ARG FLAVOR
 ARG VERSION
-LABEL version="$VERSION" \
-    flavor="$FLAVOR" \
-    orig-tag=${VERSION}-${FLAVOR} \
-    variant=base
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 #keep apt cache for cache mount
