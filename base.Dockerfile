@@ -17,7 +17,7 @@ RUN rm -f /etc/apt/apt.conf.d/docker-clean ;\
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked IPE_ICU_EN_ONLY=1 IPE_KEEP_SYSPKG_CACHE=true \
     install-php-extensions \
-    bcmath-stable \
+    bcmath \
     gd-stable \
     imagick \
     exif \
