@@ -101,7 +101,7 @@ RUN --mount=from=build,target=/tmp/build --mount=type=cache,target=/var/cache/ap
     #append readme info
     /bin/echo -e '\nPHP info:\n###\n````' >> /README.md ;\
     php -i 2>&1 >> /README.md ;\
-    /bin/echo -e '\n```\nInstalled Packages:\n###\n````' >> /README.md ;\
+    /bin/echo -e '\n```\nInstalled Packages:\n###\n```' >> /README.md ;\
     cat /tmp/packages >>/README.md ;\
     echo '```' >> /README.md ;\
     rm /tmp/packages;
