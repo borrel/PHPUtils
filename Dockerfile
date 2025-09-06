@@ -57,7 +57,7 @@ RUN set -xe ;\
     #set locale for machine parsing dpkg-query
     export LOCALE=C.UTF-8 ;\
     #append readme
-    echo -e '\nBuild info:\n###\ntag: ${VERSION}-${FLAVOR}-prod\n' >> /README.md ;\
+    echo -e '\nBuild info:\n###\ntag: ${VERSION}-${FLAVOR}-${VARIANT}\n' >> /README.md ;\
     #save required packages
     ldd `php-config --php-binary` $(find `php-config --extension-dir` -name *.so) \
     | grep -E '=> /' \
@@ -65,7 +65,7 @@ RUN set -xe ;\
     | xargs realpath \
     | xargs dpkg-query --search \
     | sed -E 's/^(.*)\: .*/\1/m' \
-    | sed -E 's/,/\n/m' \
+    | sed -E 's/,/\n/mg' \
     | sort -u > /tmp/packages ;\
     #strip tests
     rm -rf /usr/local/lib/php/test ;\
@@ -89,7 +89,7 @@ RUN --mount=from=build,target=/tmp/build --mount=type=cache,target=/var/cache/ap
     echo ca-certificates >> /tmp/packages  ;\
     if [ "$VARIANT" = "dev" ]; then \
     echo git screen default-mysql-client curl sudo nano ssh bind9-utils traceroute procps htop openssl ssh-client \
-    | sed -E 's/ /\n/m' \
+    | sed -E 's/ /\n/mg' \
     >> /tmp/packages ;\
     fi ;\
     cat /tmp/packages ;\
@@ -103,8 +103,7 @@ RUN --mount=from=build,target=/tmp/build --mount=type=cache,target=/var/cache/ap
     php -i 2>&1 >> /README.md ;\
     /bin/echo -e '\n```\nInstalled Packages:\n###\n```' >> /README.md ;\
     cat /tmp/packages >>/README.md ;\
-    echo '```' >> /README.md ;\
-    rm /tmp/packages;
+    echo '```' >> /README.md ;
 
 LABEL version="${VERSION}" \
     flavor="${FLAVOR}" \
