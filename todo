@@ -3,32 +3,4 @@ configure apache => dev/prod
 configure Xdebug => dev (wip)
     => php.ini
     => proxy ?
-
-configure xcache => dev/prod
-
-generate the dockerfiles
-    => combine prod/dev
-    => set CMD [from upstream?]
-
-idea 
- use php:fpm as builder and use the resulting artifacts
- resecreate varians form them [cli, fpm]
- create a cron runner
- create preconfigured webserver images
- create docker-compose.yaml configurations for
-  [apache|nginx] [mysql|marria] php
-  wordpress
-  magento2
-  symphony
-
-create openstack configurations for
-  [apache|nginx] [mysql|marria] php
-  wordpress
-  magento2
-  symphony
-
-figure out mulicloud configurations
-  replication / failover
-    database
-    file storage
-    cron
+      -> gitpod / codeready / chia

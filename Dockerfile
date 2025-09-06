@@ -1,9 +1,14 @@
-ARG VERSION
+ARG VERSION=8.4
 ARG FLAVOR=cli
+ARG VARIANT=dev
+# dev or prod
+ARG DEBIAN_RELEASE=trixie
+#debian release name ex: bookwork trixie (alphine not suported)
 
-FROM php:${VERSION}-${FLAVOR} AS build
+FROM php:${VERSION}-${FLAVOR}-${DEBIAN_RELEASE} AS build
 ARG FLAVOR
 ARG VERSION
+ARG VARIANT
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 #keep apt cache for cache mount
@@ -37,29 +42,38 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,t
     yaml-stable \
     inotify-stable \
     sockets;
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    test "$VARIANT" = "dev" && install-php-extensions xdebug || true
 #end base
 #create a stripped php.ini
 RUN echo ';stripped version of /usr/local/etc/php/php.ini-production' > /usr/local/etc/php/php.ini ;\
-    cat /usr/local/etc/php/php.ini-production | grep -E '^[\s]*[^;]' | sed -zE 's/(\[\w+\]\s*\n)+(\[\w+\])/\2/g' >> /usr/local/etc/php/php.ini
-
+    cat /usr/local/etc/php/php.ini-production \
+    #strip empty
+    | grep -E '^[\s]*[^;]' \
+    #strip comments
+    | sed -zE 's/(\[\w+\]\s*\n)+(\[\w+\])/\2/g' >> /usr/local/etc/php/php.ini
 
 RUN set -xe ;\
+    #set locale for machine parsing dpkg-query
+    export LOCALE=C.UTF-8 ;\
     #append readme
     echo -e '\nBuild info:\n###\ntag: ${VERSION}-${FLAVOR}-prod\n' >> /README.md ;\
     #save required packages
     ldd `php-config --php-binary` $(find `php-config --extension-dir` -name *.so) \
     | grep -E '=> /' \
     | sed -E 's/^.* => (\/.*) \(0x[a-f0-9]+\)$.*/\1/m' \
-    | xargs basename -a \
+    | xargs realpath \
     | xargs dpkg-query --search \
-    | cut -d: -f1 \
+    | sed -E 's/^(.*)\: .*/\1/m' \
+    | sed -E 's/,/\n/m' \
     | sort -u > /tmp/packages ;\
     #strip tests
     rm -rf /usr/local/lib/php/test ;\
     # smoke test
     test "$(php -m 2>&1 | tee /dev/stderr | grep 'PHP Warning' | wc -l)" -eq 0
 
-FROM debian:bookworm-slim
+FROM debian:${DEBIAN_RELEASE}-slim
+ARG VARIANT
 RUN --mount=from=build,target=/tmp/build --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked \
     set -xe ;\
     #install the bare minimum
@@ -71,7 +85,15 @@ RUN --mount=from=build,target=/tmp/build --mount=type=cache,target=/var/cache/ap
     echo 'APT::AutoRemove::SuggestsImportant "false";' >> /etc/apt/apt.conf.d/99-custom ;\
     apt-get update ;\
     apt-mark auto '.*' > /dev/null;\
-    cat /tmp/build/tmp/packages | xargs -tr apt-get install -y ca-certificates ;\
+    cp /tmp/build/tmp/packages /tmp/packages ;\
+    echo ca-certificates >> /tmp/packages  ;\
+    if [ "$VARIANT" = "dev" ]; then \
+    echo git screen default-mysql-client curl sudo nano ssh bind9-utils traceroute procps htop openssl ssh-client \
+    | sed -E 's/ /\n/m' \
+    >> /tmp/packages ;\
+    fi ;\
+    cat /tmp/packages ;\
+    cat /tmp/packages | xargs -tr apt-get install -y ;\
     apt-get autoremove ;\
     apt-get purge ~c ;\
     cp -vr /tmp/build/usr/local/bin /tmp/build/usr/local/etc /tmp/build/usr/local/lib /usr/local/ ;\
@@ -79,12 +101,15 @@ RUN --mount=from=build,target=/tmp/build --mount=type=cache,target=/var/cache/ap
     #append readme info
     echo -e '\nPHP info:\n###\n````' >> /README.md ;\
     php -i 2>&1 >> /README.md ;\
-    echo '```' >> /README.md
+    echo '```' >> /README.md ;\
+    echo -e '\nInstalled Packages:\n###\n````' >> /README.md ;\
+    cat /tmp/packages >>/README.md ;\
+    echo '```' >> /README.md ;\
+    rm /tmp/packages;
 
-
-LABEL version="$VERSION" \
-    flavor="$FLAVOR" \
-    orig-tag=${VERSION}-${FLAVOR} \
-    variant=prod
+LABEL version="${VERSION}" \
+    flavor="${FLAVOR}" \
+    orig-tag=${VERSION}-${FLAVOR}-${DEBIAN_RELEASE} \
+    variant=${VARIANT}
 
 ENTRYPOINT ["docker-php-entrypoint"]
