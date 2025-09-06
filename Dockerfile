@@ -99,10 +99,9 @@ RUN --mount=from=build,target=/tmp/build --mount=type=cache,target=/var/cache/ap
     cp -vr /tmp/build/usr/local/bin /tmp/build/usr/local/etc /tmp/build/usr/local/lib /usr/local/ ;\
     test "$(php -m 2>&1 | tee /dev/stderr | grep 'PHP Warning' | wc -l)" -eq 0 ;\
     #append readme info
-    echo -e '\nPHP info:\n###\n````' >> /README.md ;\
+    /bin/echo -e '\nPHP info:\n###\n````' >> /README.md ;\
     php -i 2>&1 >> /README.md ;\
-    echo '```' >> /README.md ;\
-    echo -e '\nInstalled Packages:\n###\n````' >> /README.md ;\
+    /bin/echo -e '```\nInstalled Packages:\n###\n````' >> /README.md ;\
     cat /tmp/packages >>/README.md ;\
     echo '```' >> /README.md ;\
     rm /tmp/packages;
